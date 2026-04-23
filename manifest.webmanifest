@@ -1,6 +1,6 @@
 {
-  "name": "Link Opener",
-  "short_name": "Links",
+  "name": "Tab Cannon",
+  "short_name": "Tab Cannon",
   "description": "Open a list of URLs with a shared term substituted in.",
   "start_url": "./",
   "scope": "./",

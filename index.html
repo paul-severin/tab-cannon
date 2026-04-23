@@ -6,12 +6,12 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Links" />
+  <meta name="apple-mobile-web-app-title" content="Tab Cannon" />
   <meta name="theme-color" content="#007aff" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="icon" type="image/svg+xml" href="icon.svg" />
-  <title>Links Öffner</title>
+  <title>Tab Cannon</title>
   <style>
     :root {
       --bg: #f2f2f7;
@@ -43,14 +43,18 @@
       color: var(--text);
       font: 16px -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
       -webkit-font-smoothing: antialiased;
+      height: 100%;
     }
     body {
-      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
     }
     .wrap {
       max-width: 640px;
       margin: 0 auto;
-      padding: 16px 16px 96px;
+      padding: 16px 16px 0;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
     }
     h1 {
       font-size: 22px;
@@ -87,8 +91,10 @@
       border-color: var(--accent);
     }
     textarea {
-      min-height: 240px;
-      resize: vertical;
+      flex: 1;
+      min-height: 160px;
+      resize: none;
+      overflow-y: auto;
       font-family: ui-monospace, "SF Mono", Menlo, monospace;
       font-size: 16px;
       line-height: 1.5;
@@ -103,44 +109,18 @@
       padding: 16px;
       font-size: 17px;
       font-weight: 600;
-      margin-top: 20px;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
     }
     .btn:active { background: var(--accent-pressed); }
-    .results {
-      margin-top: 20px;
+    .footer {
+      position: sticky;
+      bottom: 0;
+      background: var(--bg);
+      padding: 12px 0 calc(env(safe-area-inset-bottom) + 12px);
+      margin-top: 12px;
+      z-index: 10;
     }
-    .results h2 {
-      font-size: 15px;
-      font-weight: 600;
-      margin: 0 0 8px;
-      color: var(--muted);
-    }
-    .link-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    .link-list li {
-      border-bottom: 1px solid var(--border);
-    }
-    .link-list li:last-child { border-bottom: none; }
-    .link-list a {
-      display: block;
-      padding: 14px;
-      color: var(--accent);
-      text-decoration: none;
-      font-family: ui-monospace, "SF Mono", Menlo, monospace;
-      font-size: 13px;
-      word-break: break-all;
-      -webkit-tap-highlight-color: rgba(0,122,255,0.1);
-    }
-    .link-list a:active { background: rgba(0,122,255,0.08); }
     .error {
       color: var(--danger);
       font-size: 13px;
@@ -181,26 +161,9 @@
       placeholder="https://www.google.com/search?q={begriff}&#10;https://duckduckgo.com/?q={begriff}&#10;https://de.wikipedia.org/wiki/{begriff}"
     ></textarea>
 
-    <button class="btn" id="openViaShortcut">Alle Öffnen</button>
-    <div class="error" id="error"></div>
-
-    <details style="margin-top:16px">
-      <summary style="color:var(--muted); font-size:13px; cursor:pointer;">Shortcut-Einstellungen</summary>
-      <label for="shortcutName">Shortcut-Name</label>
-      <input
-        id="shortcutName"
-        type="text"
-        autocomplete="off"
-        autocapitalize="off"
-        autocorrect="off"
-        spellcheck="false"
-        value="URLs öffnen"
-      />
-    </details>
-
-    <div class="results" id="results" hidden>
-      <h2>Vorschau</h2>
-      <ul class="link-list" id="linkList"></ul>
+    <div class="footer">
+      <div class="error" id="error"></div>
+      <button class="btn" id="openViaShortcut">Alle Öffnen</button>
     </div>
   </div>
 
@@ -210,10 +173,7 @@
     const termEl = document.getElementById("term");
     const urlsEl = document.getElementById("urls");
     const shortcutBtn = document.getElementById("openViaShortcut");
-    const shortcutNameEl = document.getElementById("shortcutName");
     const errorEl = document.getElementById("error");
-    const resultsEl = document.getElementById("results");
-    const listEl = document.getElementById("linkList");
 
     const DEFAULT_SHORTCUT = "URLs öffnen";
 
@@ -221,7 +181,6 @@
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
       if (saved.term) termEl.value = saved.term;
       if (saved.urls) urlsEl.value = saved.urls;
-      if (saved.shortcut) shortcutNameEl.value = saved.shortcut;
     } catch {}
 
     const persist = () => {
@@ -229,13 +188,11 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
           term: termEl.value,
           urls: urlsEl.value,
-          shortcut: shortcutNameEl.value,
         }));
       } catch {}
     };
     termEl.addEventListener("input", persist);
     urlsEl.addEventListener("input", persist);
-    shortcutNameEl.addEventListener("input", persist);
 
     const substitute = (template, term) => {
       const encoded = encodeURIComponent(term);
@@ -254,21 +211,6 @@
       return lines.map(line => substitute(line, term));
     };
 
-    const renderList = (links) => {
-      listEl.innerHTML = "";
-      for (const url of links) {
-        const li = document.createElement("li");
-        const a = document.createElement("a");
-        a.href = url;
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-        a.textContent = url;
-        li.appendChild(a);
-        listEl.appendChild(li);
-      }
-      resultsEl.hidden = links.length === 0;
-    };
-
     shortcutBtn.addEventListener("click", () => {
       errorEl.textContent = "";
       const term = termEl.value.trim();
@@ -281,13 +223,11 @@
         errorEl.textContent = "Bitte mindestens eine URL eingeben.";
         return;
       }
-      renderList(links);
 
-      const name = (shortcutNameEl.value.trim() || DEFAULT_SHORTCUT);
       const payload = links.join("\n");
       const url =
         "shortcuts://run-shortcut" +
-        "?name=" + encodeURIComponent(name) +
+        "?name=" + encodeURIComponent(DEFAULT_SHORTCUT) +
         "&input=text" +
         "&text=" + encodeURIComponent(payload);
       window.location.href = url;
