@@ -178,7 +178,7 @@
       autocapitalize="off"
       autocorrect="off"
       spellcheck="false"
-      placeholder="https://www.google.com/search?q={term}&#10;https://duckduckgo.com/?q={term}&#10;https://de.wikipedia.org/wiki/{term}"
+      placeholder="https://www.google.com/search?q={begriff}&#10;https://duckduckgo.com/?q={begriff}&#10;https://de.wikipedia.org/wiki/{begriff}"
     ></textarea>
 
     <button class="btn" id="openViaShortcut">Alle Öffnen</button>
@@ -240,9 +240,9 @@
     const substitute = (template, term) => {
       const encoded = encodeURIComponent(term);
       return template
-        .replaceAll("{term}", encoded)
-        .replaceAll("{TERM}", encoded)
-        .replaceAll("{raw}", term);
+        .replaceAll("{begriff}", encoded)
+        .replaceAll("{BEGRIFF}", encoded)
+        .replaceAll("{roh}", term);
     };
 
     const buildLinks = () => {
