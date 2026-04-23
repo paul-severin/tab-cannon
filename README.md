@@ -7,10 +7,10 @@ Mobile-first PWA that opens a list of URLs at once on iOS, substituting a search
 ## Usage
 
 1. Enter a term (e.g. `claude`).
-2. Paste one URL per line; use `{term}` where the term should go:
+2. Paste one URL per line; use `{begriff}` where the term should go:
    ```
-   https://www.google.com/search?q={term}
-   https://de.wikipedia.org/wiki/{term}
+   https://www.google.com/search?q={begriff}
+   https://de.wikipedia.org/wiki/{begriff}
    ```
 3. Tap **Alle Öffnen** — all URLs open in new Safari tabs.
 
