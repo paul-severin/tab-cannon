@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Links" />
+  <meta name="theme-color" content="#007aff" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="icon" type="image/svg+xml" href="icon.svg" />
+  <title>Links Öffner</title>
+  <style>
+    :root {
+      --bg: #f2f2f7;
+      --card: #ffffff;
+      --text: #1c1c1e;
+      --muted: #8e8e93;
+      --border: #d1d1d6;
+      --accent: #007aff;
+      --accent-pressed: #0062cc;
+      --danger: #ff3b30;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #000000;
+        --card: #1c1c1e;
+        --text: #f2f2f7;
+        --muted: #8e8e93;
+        --border: #38383a;
+        --accent: #0a84ff;
+        --accent-pressed: #0060d0;
+        --danger: #ff453a;
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    body {
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .wrap {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 16px 16px 96px;
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 8px 0 4px;
+    }
+    p.hint {
+      color: var(--muted);
+      font-size: 13px;
+      margin: 0 0 16px;
+      line-height: 1.4;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin: 16px 4px 6px;
+    }
+    input[type="text"], textarea {
+      width: 100%;
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      font: inherit;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    input[type="text"]:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    textarea {
+      min-height: 240px;
+      resize: vertical;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 17px;
+      font-weight: 600;
+      margin-top: 20px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active { background: var(--accent-pressed); }
+    .results {
+      margin-top: 20px;
+    }
+    .results h2 {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 0 0 8px;
+      color: var(--muted);
+    }
+    .link-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .link-list li {
+      border-bottom: 1px solid var(--border);
+    }
+    .link-list li:last-child { border-bottom: none; }
+    .link-list a {
+      display: block;
+      padding: 14px;
+      color: var(--accent);
+      text-decoration: none;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 13px;
+      word-break: break-all;
+      -webkit-tap-highlight-color: rgba(0,122,255,0.1);
+    }
+    .link-list a:active { background: rgba(0,122,255,0.08); }
+    .error {
+      color: var(--danger);
+      font-size: 13px;
+      margin-top: 8px;
+      min-height: 18px;
+    }
+    code.placeholder {
+      background: var(--border);
+      color: var(--text);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Links Öffner</h1>
+    <p class="hint">
+      Gib einen Begriff und eine URL pro Zeile ein. Verwende
+      <code class="placeholder">{term}</code> in jeder URL an der Stelle,
+      an der der Begriff eingesetzt werden soll.
+    </p>
+
+    <label for="term">Begriff</label>
+    <input
+      id="term"
+      type="text"
+      autocomplete="off"
+      autocapitalize="off"
+      autocorrect="off"
+      spellcheck="false"
+      placeholder="z. B. claude"
+    />
+
+    <label for="urls">URLs (eine pro Zeile)</label>
+    <textarea
+      id="urls"
+      autocomplete="off"
+      autocapitalize="off"
+      autocorrect="off"
+      spellcheck="false"
+      placeholder="https://www.google.com/search?q={term}&#10;https://duckduckgo.com/?q={term}&#10;https://de.wikipedia.org/wiki/{term}"
+    ></textarea>
+
+    <button class="btn" id="openViaShortcut">Alle Öffnen</button>
+    <div class="error" id="error"></div>
+
+    <details style="margin-top:16px">
+      <summary style="color:var(--muted); font-size:13px; cursor:pointer;">Shortcut-Einstellungen</summary>
+      <label for="shortcutName">Shortcut-Name</label>
+      <input
+        id="shortcutName"
+        type="text"
+        autocomplete="off"
+        autocapitalize="off"
+        autocorrect="off"
+        spellcheck="false"
+        value="URLs öffnen"
+      />
+    </details>
+
+    <div class="results" id="results" hidden>
+      <h2>Vorschau</h2>
+      <ul class="link-list" id="linkList"></ul>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "link-opener-state-v1";
+
+    const termEl = document.getElementById("term");
+    const urlsEl = document.getElementById("urls");
+    const shortcutBtn = document.getElementById("openViaShortcut");
+    const shortcutNameEl = document.getElementById("shortcutName");
+    const errorEl = document.getElementById("error");
+    const resultsEl = document.getElementById("results");
+    const listEl = document.getElementById("linkList");
+
+    const DEFAULT_SHORTCUT = "URLs öffnen";
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      if (saved.term) termEl.value = saved.term;
+      if (saved.urls) urlsEl.value = saved.urls;
+      if (saved.shortcut) shortcutNameEl.value = saved.shortcut;
+    } catch {}
+
+    const persist = () => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          term: termEl.value,
+          urls: urlsEl.value,
+          shortcut: shortcutNameEl.value,
+        }));
+      } catch {}
+    };
+    termEl.addEventListener("input", persist);
+    urlsEl.addEventListener("input", persist);
+    shortcutNameEl.addEventListener("input", persist);
+
+    const substitute = (template, term) => {
+      const encoded = encodeURIComponent(term);
+      return template
+        .replaceAll("{term}", encoded)
+        .replaceAll("{TERM}", encoded)
+        .replaceAll("{raw}", term);
+    };
+
+    const buildLinks = () => {
+      const term = termEl.value.trim();
+      const lines = urlsEl.value
+        .split(/\r?\n/)
+        .map(l => l.trim())
+        .filter(Boolean);
+      return lines.map(line => substitute(line, term));
+    };
+
+    const renderList = (links) => {
+      listEl.innerHTML = "";
+      for (const url of links) {
+        const li = document.createElement("li");
+        const a = document.createElement("a");
+        a.href = url;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.textContent = url;
+        li.appendChild(a);
+        listEl.appendChild(li);
+      }
+      resultsEl.hidden = links.length === 0;
+    };
+
+    shortcutBtn.addEventListener("click", () => {
+      errorEl.textContent = "";
+      const term = termEl.value.trim();
+      if (!term) {
+        errorEl.textContent = "Bitte Begriff eingeben.";
+        return;
+      }
+      const links = buildLinks();
+      if (links.length === 0) {
+        errorEl.textContent = "Bitte mindestens eine URL eingeben.";
+        return;
+      }
+      renderList(links);
+
+      const name = (shortcutNameEl.value.trim() || DEFAULT_SHORTCUT);
+      const payload = links.join("\n");
+      const url =
+        "shortcuts://run-shortcut" +
+        "?name=" + encodeURIComponent(name) +
+        "&input=text" +
+        "&text=" + encodeURIComponent(payload);
+      window.location.href = url;
+    });
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("sw.js").catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
