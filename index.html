@@ -21,6 +21,9 @@
       --border: #d1d1d6;
       --accent: #007aff;
       --accent-pressed: #0062cc;
+      --btn-bg: #e5e5ea;
+      --btn-bg-pressed: #d1d1d6;
+      --btn-text: #1c1c1e;
       --danger: #ff3b30;
     }
     @media (prefers-color-scheme: dark) {
@@ -32,6 +35,9 @@
         --border: #38383a;
         --accent: #0a84ff;
         --accent-pressed: #0060d0;
+        --btn-bg: #2c2c2e;
+        --btn-bg-pressed: #3a3a3c;
+        --btn-text: #f2f2f7;
         --danger: #ff453a;
       }
     }
@@ -102,8 +108,8 @@
     .btn {
       display: block;
       width: 100%;
-      background: var(--accent);
-      color: white;
+      background: var(--btn-bg);
+      color: var(--btn-text);
       border: none;
       border-radius: 12px;
       padding: 16px;
@@ -112,7 +118,7 @@
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
     }
-    .btn:active { background: var(--accent-pressed); }
+    .btn:active { background: var(--btn-bg-pressed); }
     .footer {
       position: sticky;
       bottom: 0;
