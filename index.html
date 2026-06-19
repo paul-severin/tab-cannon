@@ -154,6 +154,7 @@
       autocapitalize="off"
       autocorrect="off"
       spellcheck="false"
+      enterkeyhint="go"
       placeholder="z. B. claude"
     />
 
@@ -217,7 +218,7 @@
       return lines.map(line => substitute(line, term));
     };
 
-    shortcutBtn.addEventListener("click", () => {
+    const openAll = () => {
       errorEl.textContent = "";
       const term = termEl.value.trim();
       if (!term) {
@@ -237,6 +238,16 @@
         "&input=text" +
         "&text=" + encodeURIComponent(payload);
       window.location.href = url;
+    };
+
+    shortcutBtn.addEventListener("click", openAll);
+
+    termEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        termEl.blur();
+        openAll();
+      }
     });
 
     if ("serviceWorker" in navigator) {
